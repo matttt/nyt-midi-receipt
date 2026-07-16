@@ -1,0 +1,8 @@
+node_modules
+nyt-mini-bot-main (reference)
+sampleMidi.json
+README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+.DS_Store
