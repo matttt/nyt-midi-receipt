@@ -20,6 +20,16 @@ Then:
 | `GET /preview` | Text preview, no paper used |
 | `GET /grid.png` | Rendered grid image, for a browser sanity check |
 
+## Deploy (Docker)
+
+```sh
+docker compose up -d --build
+```
+
+Printer IP and paper width are set in [docker-compose.yml](docker-compose.yml)
+(`PRINTER_HOST` / `RECEIPT_WIDTH`). The compose file builds the image on the
+host it runs on, so architecture (x86 vs ARM) doesn't matter.
+
 ## Config (env vars)
 
 | Var | Default | |
