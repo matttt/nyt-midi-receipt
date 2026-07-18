@@ -15,8 +15,7 @@ docker run -d --name nyt-midi-receipt \
 ```
 
 Set `PRINTER_HOST` to your printer's IP, then hit `http://localhost:6434/print`.
-See [Config](#config-env-vars) for the other env vars. If the package is
-private, `docker login ghcr.io` first.
+See [Config](#config-env-vars) for the other env vars. 
 
 ## Run
 
