@@ -1,7 +1,13 @@
 # NYT Midi → Receipt Printer
 
-Fetches the day's [NYT Midi crossword](https://www.nytimes.com/crosswords/game/midi)
+Fetches the daily [NYT Midi crossword](https://www.nytimes.com/crosswords/game/midi)
 and prints it — grid image, clues, and all — to a network thermal receipt printer.
+
+<img width="689" height="1140" alt="0FFD1D12-F7DF-4768-A9AC-1A5EEB28DE59_1_105_c" src="https://github.com/user-attachments/assets/f4c0980e-faa2-4b41-80f8-6961fd738f53" />
+
+
+https://github.com/user-attachments/assets/2f1d7a78-71fb-4a26-924f-f4fb30431f2a
+
 
 ## Quick start (prebuilt image)
 
@@ -17,12 +23,21 @@ docker run -d --name nyt-midi-receipt \
 Set `PRINTER_HOST` to your printer's IP, then hit `http://localhost:6434/print`.
 See [Config](#config-env-vars) for the other env vars. 
 
-## Run
+Or, as an entry to your docker-compose.yml: 
 
-```sh
-npm install
-npm start
 ```
+services:
+  nyt-midi-receipt:
+    image: ghcr.io/matttt/nytmidireceipt:latest
+    container_name: nyt-midi-receipt
+    restart: unless-stopped
+    ports:
+      - "6434:6434"
+    environment:
+      PRINTER_HOST: 192.168.10.11
+      RECEIPT_WIDTH: 48
+```
+
 
 Then:
 
@@ -63,4 +78,4 @@ host it runs on, so architecture (x86 vs ARM) doesn't matter.
   [node-thermal-printer](https://github.com/Klemen1337/node-thermal-printer).
 
 `sampleMidi.json` is a captured API response for offline tinkering, and
-`nyt-mini-bot-main (reference)` is the puppeteer-based project this was inspired by.
+Shoutout to @anyu and their `nyt-mini-bot` - it helped a lot to have another working example (https://github.com/anyu/nyt-mini-bot)
