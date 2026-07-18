@@ -3,6 +3,21 @@
 Fetches the day's [NYT Midi crossword](https://www.nytimes.com/crosswords/game/midi)
 and prints it — grid image, clues, and all — to a network thermal receipt printer.
 
+## Quick start (prebuilt image)
+
+A prebuilt image is published to GitHub Container Registry:
+
+```sh
+docker run -d --name nyt-midi-receipt \
+  -p 6434:6434 \
+  -e PRINTER_HOST=192.168.10.11 \
+  ghcr.io/matttt/nytmidireceipt:latest
+```
+
+Set `PRINTER_HOST` to your printer's IP, then hit `http://localhost:6434/print`.
+See [Config](#config-env-vars) for the other env vars. If the package is
+private, `docker login ghcr.io` first.
+
 ## Run
 
 ```sh
