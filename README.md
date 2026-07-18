@@ -36,7 +36,7 @@ host it runs on, so architecture (x86 vs ARM) doesn't matter.
 | --- | --- | --- |
 | `PRINTER_HOST` | `192.168.10.11` | Printer IP (raw TCP port 9100) |
 | `RECEIPT_WIDTH` | `48` | Characters per line (48 for 80mm paper) |
-| `PORT` | `3000` | HTTP server port |
+| `PORT` | `6434` | HTTP server port |
 
 ## How it works
 

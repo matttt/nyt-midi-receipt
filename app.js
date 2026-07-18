@@ -12,7 +12,7 @@ const fetchMidi = require('./fetchMidi');
 const parse = require('./parseNYT');
 const renderGrid = require('./renderGrid');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6434;
 const PRINTER_HOST = process.env.PRINTER_HOST || '192.168.10.11';
 const RECEIPT_WIDTH = parseInt(process.env.RECEIPT_WIDTH || '48', 10); // chars per line, 48 for 80mm
 

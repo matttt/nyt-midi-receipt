@@ -4,7 +4,7 @@ services:
     container_name: nyt-midi-receipt
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "6434:6434"
     environment:
       PRINTER_HOST: 192.168.10.11
       RECEIPT_WIDTH: 48
