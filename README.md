@@ -77,5 +77,11 @@ host it runs on, so architecture (x86 vs ARM) doesn't matter.
 - [app.js](app.js) — HTTP server; talks to the printer with
   [node-thermal-printer](https://github.com/Klemen1337/node-thermal-printer).
 
-`sampleMidi.json` is a captured API response for offline tinkering, and
+## How I set it up with siri: 
+In the "Shortcuts" apps I made this shortcut. The name of the shortcut is the phrase to say to siri, so for this example "hey siri, print the midi."
+<img width="603" height="1311" alt="Screenshot 2026-07-18 at 11 18 53 AM" src="https://github.com/user-attachments/assets/97ed0a15-5f03-4bb2-868b-e76a0dac0e23" />
+
+
+`sampleMidi.json` is a captured API response for offline tinkering.
+
 Shoutout to @anyu and their `nyt-mini-bot` - it helped a lot to have another working example (https://github.com/anyu/nyt-mini-bot)
