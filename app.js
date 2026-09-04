@@ -11,6 +11,7 @@ const { ThermalPrinter, PrinterTypes, CharacterSet } = require('node-thermal-pri
 const fetchMidi = require('./fetchMidi');
 const parse = require('./parseNYT');
 const renderGrid = require('./renderGrid');
+const emojiByChar = require('unicode-emoji-json');
 
 const PORT = process.env.PORT || 6434;
 const PRINTER_HOST = process.env.PRINTER_HOST || '192.168.10.11';
@@ -25,13 +26,40 @@ function makePrinter() {
   });
 }
 
+// Emoji clues do turn up (NYT sends those as `formatted`-only), and the printer
+// has no glyphs for them, so spell them out instead of printing '?'.
+// Needs the `v` flag. \p{RGI_Emoji} keeps ZWJ sequences and skin-tone modifiers
+// together so we look up whole clusters rather than their pieces, and matches
+// longest-first; \p{Extended_Pictographic} then catches unqualified singles
+// like a bare U+2764 heart, which RGI omits. Bare digits, '#' and '*' are in
+// neither, so ordinary clue text is left alone.
+const EMOJI_RE = /[\p{RGI_Emoji}\p{Extended_Pictographic}]/gv;
+const SKIN_TONE_RE = /[\u{1F3FB}-\u{1F3FF}]/gu;
+const VARIATION_SELECTOR = '\uFE0F';
+
+function nameEmoji(emoji) {
+  const toneless = emoji.replace(SKIN_TONE_RE, '');
+  // The data is keyed by fully-qualified emoji, so an unadorned char like a
+  // bare heart only matches once the variation selector is put back.
+  const entry =
+    emojiByChar[emoji] ||
+    emojiByChar[toneless] ||
+    emojiByChar[toneless + VARIATION_SELECTOR];
+  return entry ? `[${entry.name} emoji]` : '[emoji]';
+}
+
 // The CP437 charset chokes on fancy punctuation NYT clues love.
 function sanitize(text) {
   return text
+    .replace(EMOJI_RE, nameEmoji)
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/[–—]/g, '-')
     .replace(/…/g, '...')
+    // Fold accents to bare ASCII ("piñata" -> "pinata") so the letter
+    // survives as itself rather than becoming '?'.
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
     .replace(/[^\x20-\x7E]/g, '?');
 }
 
