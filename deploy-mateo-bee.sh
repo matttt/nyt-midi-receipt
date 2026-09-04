@@ -28,10 +28,11 @@ docker buildx build \
   --push \
   .
 
+# The bee has the standalone docker-compose binary, not the `docker compose` plugin.
 ssh "$deploy_host" "
   cd /opt/docker &&
-  docker compose pull $service &&
-  docker compose up -d --no-deps $service &&
+  docker-compose pull $service &&
+  docker-compose up -d --no-deps $service &&
   curl --fail --silent --show-error http://127.0.0.1:$port/ >/dev/null &&
   docker inspect --format='{{.Config.Image}} {{.State.Status}}' $service
 "
