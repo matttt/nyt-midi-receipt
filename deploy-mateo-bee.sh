@@ -33,7 +33,11 @@ ssh "$deploy_host" "
   cd /opt/docker &&
   docker-compose pull $service &&
   docker-compose up -d --no-deps $service &&
-  curl --fail --silent --show-error http://127.0.0.1:$port/ >/dev/null &&
+  for i in \$(seq 1 20); do
+    curl --fail --silent http://127.0.0.1:$port/ >/dev/null && break
+    [ \$i = 20 ] && { echo 'service did not come up within 20s'; exit 1; }
+    sleep 1
+  done &&
   docker inspect --format='{{.Config.Image}} {{.State.Status}}' $service
 "
 
