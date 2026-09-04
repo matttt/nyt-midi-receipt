@@ -40,7 +40,8 @@ function overlayUrl(data) {
  * @returns {{
  *   title: string, date: string, constructors: string[],
  *   width: number, height: number,
- *   cells: {blocked: boolean, label: string|null, answer: string|null}[],
+ *   cells: {blocked: boolean, circled: boolean, shaded: boolean,
+ *           label: string|null, answer: string|null}[],
  *   clues: {across: Clue[], down: Clue[]},
  *   notes: string[], overlayUrl: string|null
  * }}
@@ -50,10 +51,12 @@ function parse(data) {
   const board = data.body[0];
   const { width, height } = board.dimensions;
 
-  // Blocked (black) squares come through as empty objects. type 2 = circled.
+  // Blocked (black) squares come through as empty objects.
+  // type 2 = circled, type 3 = shaded.
   const cells = board.cells.map((cell) => ({
     blocked: cell.answer === undefined,
     circled: cell.type === 2,
+    shaded: cell.type === 3,
     label: cell.label || null,
     answer: cell.answer || null,
   }));

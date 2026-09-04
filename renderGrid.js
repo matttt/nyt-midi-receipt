@@ -26,6 +26,11 @@ const FONT_SCALE = 2; // 5x7 font -> 10x14 px labels
 // at roughly a third alpha, which is why they read as pink on screen. Averaging
 // alpha over each destination pixel's source box keeps walls, arrows and
 // antialiased edges alike, with no separate colour path.
+// Shaded squares have to survive a 1-bit printer, so they become a dot screen
+// rather than grey. The screen is aligned to the image instead of the cell, so
+// a run of shaded squares reads as one continuous field.
+const SHADE_PITCH = 2; // one dot per 2x2 px, ~25% coverage
+
 const SVG_FRAME = 3;
 const SVG_CELL = 55;
 const OVERLAY_INK = 0.22; // averaged coverage that counts as ink
@@ -88,6 +93,16 @@ function renderGrid(puzzle, overlay) {
     }
   };
 
+  const drawShade = (x, y, size) => {
+    for (let dy = 0; dy < size; dy++) {
+      for (let dx = 0; dx < size; dx++) {
+        if ((x + dx) % SHADE_PITCH === 0 && (y + dy) % SHADE_PITCH === 0) {
+          setBlack(x + dx, y + dy);
+        }
+      }
+    }
+  };
+
   const drawCircle = (x, y, size) => {
     const c = (size - 1) / 2;
     const r = size / 2 - 1.5;
@@ -113,6 +128,7 @@ function renderGrid(puzzle, overlay) {
         fillRect(x, y, cell - LINE, cell - LINE);
         continue;
       }
+      if (data.shaded) drawShade(x, y, cell - LINE);
       if (data.circled) drawCircle(x, y, cell - LINE);
       if (data.label) drawLabel(data.label, x + 4, y + 4);
     }
