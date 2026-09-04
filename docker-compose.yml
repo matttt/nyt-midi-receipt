@@ -1,5 +1,7 @@
 services:
   nyt-midi-receipt:
+    # Pulled from ghcr by default; `docker compose build` still works locally.
+    image: ${NYT_MIDI_RECEIPT_IMAGE:-ghcr.io/matttt/nytmidireceipt:latest}
     build: .
     container_name: nyt-midi-receipt
     restart: unless-stopped
