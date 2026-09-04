@@ -2,9 +2,9 @@
   "name": "nyt-midi-receipt",
   "version": "1.0.0",
   "description": "Prints the NYT Midi crossword to a network receipt printer",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node src/app.js"
   },
   "dependencies": {
     "node-thermal-printer": "^4.6.0",

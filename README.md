@@ -51,13 +51,23 @@ Then:
 
 ## Deploy (Docker)
 
+`docker compose up -d --build` builds and runs it locally.
+
+To publish and roll out to a server, [deploy-mateo-bee.sh](deploy-mateo-bee.sh)
+smoke-tests the parse/render path, pushes the image to ghcr, then pulls and
+restarts it over ssh:
+
 ```sh
-docker compose up -d --build
+./deploy-mateo-bee.sh
 ```
 
+`IMAGE`, `DEPLOY_HOST`, `SERVICE` and `PORT` are all env-overridable.
+
+Note the `--platform linux/amd64` in that build: an image built on an ARM Mac
+without it will not run on an x86 host at all.
+
 Printer IP and paper width are set in [docker-compose.yml](docker-compose.yml)
-(`PRINTER_HOST` / `RECEIPT_WIDTH`). The compose file builds the image on the
-host it runs on, so architecture (x86 vs ARM) doesn't matter.
+(`PRINTER_HOST` / `RECEIPT_WIDTH`).
 
 ## Config (env vars)
 
@@ -67,14 +77,21 @@ host it runs on, so architecture (x86 vs ARM) doesn't matter.
 | `RECEIPT_WIDTH` | `48` | Characters per line (48 for 80mm paper) |
 | `PORT` | `6434` | HTTP server port |
 
+## Layout
+
+```
+src/        the server and its pieces
+reference/  captured API payloads, for offline tinkering
+```
+
 ## How it works
 
-- [fetchMidi.js](fetchMidi.js) — grabs `midi.json` from NYT's v6 puzzle API. The
+- [src/fetchMidi.js](src/fetchMidi.js) — grabs `midi.json` from NYT's v6 puzzle API. The
   `x-games-auth-bypass: true` header is all it needs; no login or cookies.
-- [parseNYT.js](parseNYT.js) — flattens the puzzle JSON into grid cells + labeled clues.
-- [renderGrid.js](renderGrid.js) — draws the grid as a PNG (pngjs, hand-rolled 5x7
+- [src/parseNYT.js](src/parseNYT.js) — flattens the puzzle JSON into grid cells + labeled clues.
+- [src/renderGrid.js](src/renderGrid.js) — draws the grid as a PNG (pngjs, hand-rolled 5x7
   digit font) sized for 80mm / 576-dot paper, with cells big enough to write in.
-- [app.js](app.js) — HTTP server; talks to the printer with
+- [src/app.js](src/app.js) — HTTP server; talks to the printer with
   [node-thermal-printer](https://github.com/Klemen1337/node-thermal-printer).
 
 ## How I set it up with siri: 
@@ -82,6 +99,7 @@ In the "Shortcuts" apps I made this shortcut. The name of the shortcut is the ph
 <img width="603" height="1311" alt="Screenshot 2026-07-18 at 11 18 53 AM" src="https://github.com/user-attachments/assets/97ed0a15-5f03-4bb2-868b-e76a0dac0e23" />
 
 
-`sampleMidi.json` is a captured API response for offline tinkering.
+`reference/sampleMidi.json` is a captured API response for offline tinkering,
+and doubles as the fixture the deploy script's smoke test runs against.
 
 Shoutout to @anyu and their `nyt-mini-bot` - it helped a lot to have another working example (https://github.com/anyu/nyt-mini-bot)

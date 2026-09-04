@@ -1,6 +1,6 @@
 node_modules
-nyt-mini-bot-main (reference)
-sampleMidi.json
+reference
+deploy-mateo-bee.sh
 README.md
 Dockerfile
 docker-compose.yml

@@ -12,10 +12,10 @@ cd "$script_dir"
 
 # Catch a broken parse/render before it reaches the registry.
 node -e '
-  const parse = require("./parseNYT");
-  const puzzle = parse(require("./sampleMidi.json"));
+  const parse = require("./src/parseNYT");
+  const puzzle = parse(require("./reference/sampleMidi.json"));
   if (!puzzle.clues.across.length) throw new Error("parse produced no clues");
-  require("./renderGrid")(puzzle);
+  require("./src/renderGrid")(puzzle);
   console.log(`smoke ok: ${puzzle.clues.across.length} across, ${puzzle.clues.down.length} down`);
 '
 
