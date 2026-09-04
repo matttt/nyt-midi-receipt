@@ -24,13 +24,25 @@ function clueText(parts) {
     .trim();
 }
 
+// A themed puzzle can ship decoration the cells don't describe -- today's maze
+// walls and its entry/exit arrows, say. `overlays` indexes `assets` 1-based;
+// beforeStart is the unsolved grid, which is the one worth printing (afterSolve
+// is typically an animation).
+function overlayUrl(data) {
+  const index = data.body[0].overlays && data.body[0].overlays.beforeStart;
+  if (!index) return null;
+  const asset = (data.assets || [])[index - 1];
+  return asset ? asset.uri : null;
+}
+
 /**
  * @param {object} data raw puzzle JSON (as returned by fetchMidi)
  * @returns {{
  *   title: string, date: string, constructors: string[],
  *   width: number, height: number,
  *   cells: {blocked: boolean, label: string|null, answer: string|null}[],
- *   clues: {across: Clue[], down: Clue[]}
+ *   clues: {across: Clue[], down: Clue[]},
+ *   notes: string[], overlayUrl: string|null
  * }}
  * where Clue = {label: string, text: string, answer: string}
  */
@@ -63,6 +75,8 @@ function parse(data) {
     height,
     cells,
     clues,
+    notes: (data.notes || []).map((note) => note.text).filter(Boolean),
+    overlayUrl: overlayUrl(data),
   };
 }
 

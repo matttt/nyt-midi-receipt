@@ -22,4 +22,17 @@ async function fetchMidi(date) {
   return res.json();
 }
 
+/**
+ * @param {string} url absolute URL of a puzzle asset (overlay art)
+ * @returns {Promise<Buffer>} the raw image bytes
+ */
+async function fetchAsset(url) {
+  const res = await fetch(url, { headers: HEADERS });
+  if (!res.ok) {
+    throw new Error(`NYT responded ${res.status} for ${url}`);
+  }
+  return Buffer.from(await res.arrayBuffer());
+}
+
 module.exports = fetchMidi;
+module.exports.fetchAsset = fetchAsset;

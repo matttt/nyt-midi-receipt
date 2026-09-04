@@ -104,6 +104,10 @@ function clueLines(puzzle) {
   return lines;
 }
 
+function noteLines(puzzle) {
+  return puzzle.notes.flatMap((note) => wrap(sanitize(note), RECEIPT_WIDTH, 0));
+}
+
 function answerLines(puzzle) {
   const lines = [{ bold: true, text: 'ANSWERS' }];
   for (const dir of ['across', 'down']) {
@@ -135,7 +139,16 @@ async function printPuzzle(puzzle, { answers = false } = {}) {
   }
   printer.newLine();
 
-  await printer.printImageBuffer(renderGrid(puzzle));
+  // The note explains a themed grid (today: that it's a maze), so it has to
+  // come before the picture of it.
+  if (puzzle.notes.length) {
+    printer.alignLeft();
+    for (const line of noteLines(puzzle)) printer.println(line);
+    printer.newLine();
+    printer.alignCenter();
+  }
+
+  await printer.printImageBuffer(renderGrid(puzzle, puzzle.overlay));
   printer.newLine();
 
   printer.alignLeft();
@@ -156,7 +169,8 @@ function previewText(puzzle, { answers = false } = {}) {
     puzzle.title,
     formatDate(puzzle.date),
     puzzle.constructors.length ? `By ${puzzle.constructors.join(', ')}` : '',
-    `[${puzzle.width}x${puzzle.height} grid image]`,
+    ...noteLines(puzzle),
+    `[${puzzle.width}x${puzzle.height} grid image${puzzle.overlay ? ' + overlay art' : ''}]`,
     '',
   ];
   const body = clueLines(puzzle).concat(answers ? answerLines(puzzle) : []);
@@ -170,7 +184,21 @@ async function getPuzzle(query) {
     err.status = 400;
     throw err;
   }
-  return parse(await fetchMidi(date));
+  const puzzle = parse(await fetchMidi(date));
+  puzzle.overlay = await getOverlay(puzzle);
+  return puzzle;
+}
+
+// Themed grid art (maze walls, arrows). Decoration is never worth failing a
+// print over, so a fetch that goes wrong just means an undecorated grid.
+async function getOverlay(puzzle) {
+  if (!puzzle.overlayUrl) return null;
+  try {
+    return await fetchMidi.fetchAsset(puzzle.overlayUrl);
+  } catch (err) {
+    console.error(`overlay fetch failed: ${err.message}`);
+    return null;
+  }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -207,7 +235,7 @@ const server = http.createServer(async (req, res) => {
       }
       case '/grid.png': {
         const puzzle = await getPuzzle(url.searchParams);
-        const png = renderGrid(puzzle);
+        const png = renderGrid(puzzle, puzzle.overlay);
         res.writeHead(200, { 'content-type': 'image/png' });
         res.end(png);
         return;
