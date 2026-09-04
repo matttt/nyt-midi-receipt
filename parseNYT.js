@@ -1,6 +1,29 @@
 // Parses an NYT crossword puzzle payload (v6 puzzle JSON: midi, mini, etc.)
 // into a flat structure that's easy to render.
 
+// NYT sends clue text as parts. Each part normally has a `plain` string, but
+// some clues (emoji rebuses, styled wordplay) arrive with only `formatted`,
+// which is HTML — so fall back to that with the markup and entities undone.
+function stripHtml(html) {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
+}
+
+function clueText(parts) {
+  return (parts || [])
+    .map((part) => (part.plain !== undefined ? part.plain : stripHtml(part.formatted || '')))
+    .join('')
+    .trim();
+}
+
 /**
  * @param {object} data raw puzzle JSON (as returned by fetchMidi)
  * @returns {{
@@ -27,7 +50,7 @@ function parse(data) {
   for (const clue of board.clues) {
     clues[clue.direction.toLowerCase()].push({
       label: clue.label,
-      text: clue.text[0].plain,
+      text: clueText(clue.text),
       answer: clue.cells.map((i) => board.cells[i].answer).join(''),
     });
   }

@@ -172,14 +172,16 @@ const server = http.createServer(async (req, res) => {
       }
       case '/preview': {
         const puzzle = await getPuzzle(url.searchParams);
+        const body = previewText(puzzle, { answers }) + '\n';
         res.writeHead(200, { 'content-type': 'text/plain' });
-        res.end(previewText(puzzle, { answers }) + '\n');
+        res.end(body);
         return;
       }
       case '/grid.png': {
         const puzzle = await getPuzzle(url.searchParams);
+        const png = renderGrid(puzzle);
         res.writeHead(200, { 'content-type': 'image/png' });
-        res.end(renderGrid(puzzle));
+        res.end(png);
         return;
       }
       default: {
@@ -189,6 +191,12 @@ const server = http.createServer(async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    // Never let a bad request take the server down with it: if the response is
+    // already committed, all we can do is hang up.
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
     res.writeHead(err.status || 502, { 'content-type': 'text/plain' });
     res.end(`Error: ${err.message}\n`);
   }
